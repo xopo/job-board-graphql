@@ -1,0 +1,47 @@
+type Query {
+  greeting: String
+  jobs: [Job!]
+  job(id: ID!): Job
+  companies: [Company]
+  company(id: ID!): Company
+}
+
+type Mutation {
+  createJob(input: CreateJobInput!): Job
+  deleteJob(id: ID!): Job
+  updateJob(input: UpdateJobInput!): Job
+}
+
+# custom type
+"""
+Represents a job posted to our board
+"""
+type Job {
+  id: ID!
+  """
+  Documentation comment
+  _Date_ is ISO-8601 format. E.g.`2021-02-04`.
+  """
+  date: String!
+  title: String
+  description: String
+  company: Company!
+}
+
+type Company {
+  id: ID!
+  name: String!
+  description: String
+  jobs: [Job!]!
+}
+
+input CreateJobInput {
+  title: String!
+  description: String
+}
+
+input UpdateJobInput {
+  id: ID!
+  title: String
+  description: String
+}
