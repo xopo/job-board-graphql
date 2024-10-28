@@ -1,11 +1,14 @@
-import { expressjwt } from 'express-jwt';
-import jwt from 'jsonwebtoken';
-import { getUserByEmail } from './db/users.js';
+import { expressjwt } from "express-jwt";
+import jwt from "jsonwebtoken";
+import { getUserByEmail } from "./db/users.js";
 
-const secret = Buffer.from('Zn8Q5tyZ/G1MHltc4F/gTkVJMlrbKiZt', 'base64');
+const secret = Buffer.from("Zn8Q5tyZ/G1MHltc4F/gTkVJMlrbKiZt", "base64");
 
+// validate token ( it was set by this server)
+// expect jwt to be added to header using Authorization key
+// the decoded information from the token added to req.auth
 export const authMiddleware = expressjwt({
-  algorithms: ['HS256'],
+  algorithms: ["HS256"],
   credentialsRequired: false,
   secret,
 });
@@ -18,6 +21,6 @@ export async function handleLogin(req, res) {
   } else {
     const claims = { sub: user.id, email: user.email };
     const token = jwt.sign(claims, secret);
-    res.json({ token });  
+    res.json({ token });
   }
 }

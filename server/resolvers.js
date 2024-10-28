@@ -30,12 +30,29 @@ export const resolvers = {
   },
 
   Mutation: {
-    createJob: (_root, { input: { title, description } }) => {
-      const companyId = "FjcJCHJALA4i"; // this will be update with authentication ( get id from auth )
-      return createJob({ title, description, companyId });
+    createJob: async (_root, { input: { title, description } }, { user }) => {
+      if (!user) {
+        notAuthorized("Missing authentication");
+      }
+      return createJob({ title, description, companyId: user.companyId });
     },
-    deleteJob: (_root, { id }) => deleteJob(id),
-    updateJob: (_root, { input }) => updateJob(input),
+    deleteJob: async (_root, { id }, { user }) => {
+      if (!user) {
+        notAuthorized("Missing authentication");
+      }
+      const job = await deleteJob(id, user.companyId);
+      if (!job) {
+        notFoundError("No job found with id:" + id);
+      }
+      return job;
+    },
+    updateJob: (_root, { input }, { user }) => {
+      if (!user) {
+        notAuthorized("Missing authentication");
+      }
+
+      updateJob(input);
+    },
   },
 
   Job: {
@@ -57,6 +74,14 @@ function notFoundError(message) {
   throw new GraphQLError(message, {
     extensions: {
       code: "NOT_FOUND",
+    },
+  });
+}
+
+function notAuthorized(message) {
+  throw new GraphQLError(message, {
+    extensions: {
+      code: "NOT_AUTHORIZED",
     },
   });
 }
