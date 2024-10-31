@@ -1,6 +1,6 @@
 type Query {
   greeting: String
-  jobs: [Job!]
+  jobs(limit: Int, offset: Int): JobSubList
   job(id: ID!): Job
   companies: [Company]
   company(id: ID!): Company
@@ -26,6 +26,11 @@ type Job {
   title: String
   description: String
   company: Company!
+}
+
+type JobSubList {
+  items: [Job!]!
+  totalCount: Int!
 }
 
 type Company {

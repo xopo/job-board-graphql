@@ -6,6 +6,7 @@ import { ApolloServer } from "@apollo/server";
 import { expressMiddleware as apolloMiddleware } from "@apollo/server/express4";
 import { resolvers } from "./resolvers.js";
 import { getUser } from "./db/users.js";
+import { getCompanyLoader } from "./db/companies.js";
 
 const PORT = 9000;
 
@@ -27,11 +28,12 @@ const apolloServer = new ApolloServer({ typeDefs, resolvers });
 
 // authMiddleware will decode jwt and populate req.auth
 const getContext = async ({ req: { auth } }) => {
+  const companyLoader = getCompanyLoader();
+  const context = { companyLoader };
   if (auth) {
-    const user = await getUser(auth.sub);
-    return { user };
+    context.user = await getUser(auth.sub);
   }
-  return null;
+  return context;
 };
 
 await apolloServer.start();

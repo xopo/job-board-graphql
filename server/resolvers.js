@@ -1,4 +1,3 @@
-import { GraphQLError } from "graphql";
 import { getCompany } from "./db/companies.js";
 import {
   createJob,
@@ -6,13 +5,19 @@ import {
   getCompanyJobs,
   getJob,
   getJobs,
+  countJobs,
   updateJob,
 } from "./db/jobs.js";
 
 export const resolvers = {
   Query: {
     greeting: () => "hello world",
-    jobs: () => getJobs(),
+    jobs: async (_root, { limit, offset }) => {
+      return {
+        items: await getJobs(limit, offset),
+        totalCount: await countJobs(),
+      };
+    },
     job: async (_root, { id }) => {
       const job = await getJob(id);
       if (!job) {
@@ -56,8 +61,11 @@ export const resolvers = {
   },
 
   Job: {
+    // company: (job) => getCompany(job.companyId),
+    company: (job, _args, { companyLoader }) => {
+      return companyLoader.load(job.companyId);
+    },
     date: (job) => toISODate(job.createdAt),
-    company: (job) => getCompany(job.companyId),
   },
 
   Company: {

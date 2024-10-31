@@ -3,13 +3,21 @@ import { generateId } from "./ids.js";
 
 const getJobTable = () => connection.table("job");
 
-export async function getJobs() {
-  return await getJobTable().select();
+export async function getJobs(limit, offset) {
+  const query = getJobTable().select().orderBy("createdAt", "desc");
+
+  if (limit) {
+    query.limit(limit);
+  }
+  if (offset) {
+    query.offset(offset);
+  }
+  return await query;
 }
 
 export async function getCompanyJobs(companyId) {
-  console.log("-- sql get ", { companyId });
-  return await getJobTable().where("companyId", companyId).select();
+  const query = getJobTable().where("companyId", companyId).select();
+  return await query;
 }
 
 export async function getJob(id) {
@@ -36,6 +44,11 @@ export async function deleteJob(id, companyId) {
   }
   await getJobTable().delete().where({ id });
   return job;
+}
+
+export async function countJobs() {
+  const { count } = await getJobTable().count("* as count").first();
+  return count;
 }
 
 export async function updateJob({ id, title, description, companyId }) {
