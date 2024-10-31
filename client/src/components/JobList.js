@@ -7,25 +7,31 @@ const JOBS_PER_PAGE = 5;
 
 function JobList() {
   const [current_page, setCurrentPage] = useState(0);
-  const { loading, error, jobs } = useJobs(JOBS_PER_PAGE, current_page);
+  const { loading, error, jobs: data } = useJobs(JOBS_PER_PAGE, current_page);
+  const { items: jobs, totalCount } = data || { items: [], totalCount: 0 };
   if (loading) {
     return <div>Loading ...</div>;
   }
   if (error) {
     return <div>Error loading jobs</div>;
   }
+  const totalPages = Math.floor(totalCount / JOBS_PER_PAGE);
   return (
     <>
       <div>
         <button
           type="button"
+          disabled={current_page <= 0}
           onClick={() => setCurrentPage((prev) => (prev > 1 ? prev - 1 : 0))}
         >
           Previous
         </button>
-        <span>{current_page}</span>
+        <span>
+          page {current_page} of {totalPages}
+        </span>
         <button
           type="button"
+          disabled={current_page >= totalPages}
           onClick={() => setCurrentPage((prev) => prev + 1)}
         >
           Next
